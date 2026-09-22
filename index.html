@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dziennik Modliszki</title>
+<meta name="theme-color" content="#3E4F30">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%97%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    box-sizing: border-box;
+    --bg: #F2EFE1;
+    --bg-alt: #EAE5D2;
+    --surface: #FFFFFF;
+    --ink: #23261B;
+    --ink-soft: #5B5E4E;
+    --moss: #3E4F30;
+    --moss-deep: #2C3A22;
+    --leaf: #7E9463;
+    --leaf-pale: #DCE3C9;
+    --amber: #BD7F2C;
+    --amber-pale: #F3E1BE;
+    --bark: #7A5738;
+    --bark-pale: #E7DAC7;
+    --line: #D9D2B8;
+    --danger: #A2402F;
+    color-scheme: light;
+    --radius-s: 10px;
+    --radius-m: 16px;
+    --radius-l: 22px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+  #app{
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 18px 14px;
+    background: linear-gradient(180deg, var(--moss-deep), var(--moss) 85%);
+    color: #F4F2E4;
+    border-bottom-left-radius: var(--radius-l);
+    border-bottom-right-radius: var(--radius-l);
+    box-shadow: 0 8px 20px rgba(44,58,34,0.18);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .brand-mark{
+    flex:none;
+    width:42px; height:42px;
+    border-radius: 12px;
+    background: rgba(244,242,228,0.12);
+    border: 1px solid rgba(244,242,228,0.3);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand-mark svg{ width:26px; height:26px; color:#F4F2E4; }
+  .brand-mark-img{ width:30px; height:30px; object-fit:contain; display:block; }
+  .brand-text{ min-width:0; }
+  .brand-text h1{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+    line-height:1.15;
+    margin:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .brand-text p{
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: #D8E0C4;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .age-chip{
+    flex:none;
+    text-align:center;
+    background: rgba(244,242,228,0.13);
+    border: 1px solid rgba(244,242,228,0.35);
+    border-radius: var(--radius-m);
+    padding: 6px 12px;
+  }
+  .age-chip .num{ display:block; font-family: var(--font-display); font-size: 20px; font-weight:600; line-height:1; }
+  .age-chip .lbl{ display:block; font-size: 10px; letter-spacing:.02em; color:#D8E0C4; margin-top:2px; }
+
+  /* ---------- Main / views ---------- */
+  main{ flex:1; padding: 18px 16px 100px; }
+  .view{ display:none; animation: fade .18s ease; }
+  .view.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform:none;} }
+
+  h2.section-title{
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    margin: 4px 0 14px;
+    color: var(--moss-deep);
+  }
+  .muted{ color: var(--ink-soft); }
+
+  /* ---------- Cards ---------- */
+  .panel{
+    background: var(--surface);
+    border-radius: var(--radius-l);
+    border: 1px solid var(--line);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .panel-terrarium{
+    background: linear-gradient(160deg, #F8F6EA 0%, var(--leaf-pale) 130%);
+    border: 1px solid var(--leaf-pale);
+  }
+  .stat-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .stat{
+    background: rgba(255,255,255,0.55);
+    border-radius: var(--radius-m);
+    padding: 12px 13px;
+    border: 1px solid rgba(255,255,255,0.7);
+  }
+  .stat .stat-label{ font-size: 11.5px; color: #24301D; font-weight:800; margin-bottom:3px; }
+  .stat .stat-value{ font-family: var(--font-display); font-size: 17px; font-weight:800; color: #16200F; }
+  .stat .stat-sub{ font-size: 11px; color: #35402E; font-weight:600; margin-top:2px; }
+
+  .quick-actions{ display:flex; gap:10px; margin-top: 4px; }
+
+  .btn{
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: var(--radius-m);
+    padding: 12px 16px;
+    cursor: pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition: transform .08s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{ background: var(--moss); color:#F4F2E4; flex:1; }
+  .btn-amber{ background: var(--amber); color:#2B1C05; flex:1; }
+  .btn-ghost{ background: var(--bg-alt); color: var(--ink); border:1px solid var(--line); }
+  .btn-danger-ghost{ background: transparent; color: var(--danger); border: 1px solid rgba(162,64,47,0.35); padding: 8px 12px; font-size:13px; }
+  .btn-block{ width:100%; }
+  .btn-sm{ padding: 8px 12px; font-size:13px; }
+
+  /* ---------- Lists ---------- */
+  .entry-list{ display:flex; flex-direction:column; gap:10px; }
+  .entry{
+    display:flex;
+    gap:12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--leaf);
+    border-radius: var(--radius-m);
+    padding: 12px 14px;
+    align-items:flex-start;
+  }
+  .entry.molt{ border-left-color: var(--bark); }
+  .entry-icon{
+    flex:none;
+    width:34px; height:34px;
+    border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--leaf-pale);
+    color: var(--moss-deep);
+  }
+  .entry.molt .entry-icon{ background: var(--bark-pale); color: var(--bark); }
+  .entry-body{ flex:1; min-width:0; }
+  .entry-title{ font-weight:700; font-size:14.5px; }
+  .entry-date{ font-size:12px; color: var(--ink-soft); margin-top:1px; }
+  .entry-notes{ font-size:13px; color: var(--ink-soft); margin-top:4px; }
+  .entry-del{
+    flex:none;
+    background:none; border:none;
+    color: var(--ink-soft);
+    padding: 4px;
+    cursor:pointer;
+    border-radius: 8px;
+  }
+  .entry-del:active{ background: var(--bg-alt); }
+
+  .empty-state{
+    text-align:center;
+    padding: 34px 16px;
+    color: var(--ink-soft);
+  }
+  .empty-state svg{ width:46px; height:46px; color: var(--leaf); margin-bottom:10px; }
+  .empty-state p{ margin:4px 0 0; font-size:13.5px; }
+
+  /* ---------- Forms ---------- */
+  .field{ margin-bottom: 14px; }
+  .field label{
+    display:block;
+    font-size: 12.5px;
+    font-weight:700;
+    color: var(--moss-deep);
+    margin-bottom: 6px;
+  }
+  .field input, .field select, .field textarea{
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    padding: 11px 12px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--line);
+    background: var(--bg-alt);
+    color: var(--ink);
+  }
+  .combo{ position:relative; width:100%; }
+  .combo input{
+    padding-right:44px !important;
+    border-color:var(--leaf) !important;
+    background:#E6ECD8 !important;
+    color:var(--ink) !important;
+  }
+  .combo input::placeholder{ color:#59634A; }
+  .combo input:hover{ border-color:var(--moss) !important; background:#E6ECD8 !important; }
+  .combo input:focus{ background:#E6ECD8 !important; }
+  .combo-toggle{
+    position:absolute; right:1px; top:1px; bottom:1px; width:40px;
+    border:0; border-left:1px solid var(--leaf);
+    border-radius:0 var(--radius-s) var(--radius-s) 0;
+    background:#D5DFC1; color:var(--moss-deep); font-size:20px; font-weight:800; cursor:pointer;
+  }
+  .combo-toggle:hover{ background:#C8D5AE; }
+  .combo-menu{
+    display:none; position:absolute; z-index:100; left:0; right:0; top:calc(100% + 4px);
+    max-height:230px; overflow:auto; padding:5px;
+    border:1px solid var(--leaf); border-radius:var(--radius-s);
+    background:#E6ECD8; box-shadow:0 8px 20px rgba(44,58,34,.18);
+  }
+  .combo.open .combo-menu{ display:block; }
+  .combo-option{
+    display:block; width:100%; box-sizing:border-box; border:0; border-radius:7px;
+    padding:9px 10px; text-align:left; background:#E6ECD8; color:#26311D;
+    font:inherit; cursor:pointer;
+  }
+  .combo-option:hover, .combo-option.active{ background:#C8D5AE; color:#1F2A18; }
+  .field textarea{ resize: vertical; min-height: 62px; }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline: 2px solid var(--leaf);
+    outline-offset: 1px;
+    border-color: var(--moss);
+    box-shadow: 0 0 0 3px rgba(126,148,99,.16);
+    background: var(--bg-alt);
+  }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+  .hint{ font-size:11.5px; color: var(--ink-soft); margin-top:5px; }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: env(safe-area-inset-bottom, 0px);
+    width: 100%;
+    max-width: 560px;
+    display:flex;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    z-index: 30;
+  }
+  .tab{
+    flex:1;
+    background:none;
+    border:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    padding: 7px 2px;
+    color: var(--ink-soft);
+    cursor:pointer;
+    border-radius: var(--radius-s);
+  }
+  .tab svg{ width:22px; height:22px; }
+  .tab span{ font-size: 10.5px; font-weight:600; }
+  .tab.active{ color: var(--moss); }
+  .tab.active .tab-icon-wrap{ background: var(--leaf-pale); }
+  .tab-icon-wrap{ padding:3px 12px; border-radius: 12px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position: fixed; inset:0;
+    background: rgba(35,38,27,0.45);
+    display:flex; align-items:flex-end;
+    z-index: 50;
+    opacity:0; pointer-events:none;
+    transition: opacity .15s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+  .modal-sheet{
+    background: var(--bg);
+    width:100%;
+    max-width: 560px;
+    margin: 0 auto;
+    border-top-left-radius: var(--radius-l);
+    border-top-right-radius: var(--radius-l);
+    padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+    max-height: 86vh;
+    overflow-y:auto;
+    transform: translateY(16px);
+    transition: transform .18s ease;
+  }
+  .modal-overlay.open .modal-sheet{ transform: translateY(0); }
+  .modal-handle{ width:38px; height:4px; background: var(--line); border-radius:2px; margin: 2px auto 14px; }
+  .modal-title{ font-family: var(--font-display); font-size:19px; font-weight:600; margin:0 0 16px; color: var(--moss-deep); }
+  .modal-actions{ display:flex; gap:10px; margin-top: 6px; }
+
+  /* ---------- Calendar ---------- */
+  .cal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+  .cal-header .cal-month{ font-family: var(--font-display); font-size:18px; font-weight:600; color: var(--moss-deep); text-transform:capitalize; }
+  .cal-nav{ background: var(--bg-alt); border:1px solid var(--line); border-radius: 10px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--moss-deep); }
+  .cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:5px; }
+  .cal-dow{ text-align:center; font-size:10.5px; color: var(--ink-soft); font-weight:700; padding-bottom:4px; }
+  .cal-day{
+    position:relative;
+    aspect-ratio: 1/1;
+    display:flex; align-items:center; justify-content:center;
+    border-radius: 10px;
+    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor:pointer;
+  }
+  .cal-day.outside{ opacity: .35; }
+  .cal-day.today{ border-color: var(--moss); border-width:2px; font-weight:700; }
+  .cal-day .dots{ position:absolute; bottom:4px; display:flex; gap:2px; }
+  .cal-dot{ width:5px; height:5px; border-radius:50%; }
+  .cal-dot.feed{ background: var(--amber); }
+  .cal-dot.molt{ background: var(--bark); }
+  .cal-legend{ display:flex; gap:16px; margin-top:14px; font-size:12px; color: var(--ink-soft); }
+  .cal-legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .cal-legend i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .day-detail{ margin-top:16px; }
+
+  /* ---------- Settings ---------- */
+  .settings-actions{ display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+  .danger-zone{ border-color: rgba(162,64,47,0.3); }
+
+  /* onboarding */
+  .onboard-lead{ font-size:13.5px; color: var(--ink-soft); margin-bottom:16px; }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#181C13; --bg-alt:#20261A; --surface:#20261A; --ink:#EDEBDD; --ink-soft:#A7AB92;
+      --leaf-pale:#2A3420; --amber-pale:#3A2E15; --bark-pale:#33291D; --line:#333B27;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <img class="brand-mark-img" alt="" aria-hidden="true" src="data:image/png;base64,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">
+      </div>
+      <div class="brand-text">
+        <h1 id="petName">Dziennik Modliszki</h1>
+        <p id="petSpecies">Uzupełnij dane w Ustawieniach</p>
+      </div>
+    </div>
+    <div class="age-chip">
+      <span class="num" id="ageDaysChip">–</span>
+      <span class="lbl">dzień życia</span>
+    </div>
+  </header>
+
+  <main id="views">
+
+    <!-- OVERVIEW -->
+    <section class="view" id="view-overview">
+      <h2 class="section-title">Przegląd</h2>
+
+      <div class="panel panel-terrarium">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">Wiek</div>
+            <div class="stat-value" id="statAge">–</div>
+            <div class="stat-sub" id="statHatch">brak daty wyklucia</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Aktualne stadium</div>
+            <div class="stat-value" id="statInstar">L1</div>
+            <div class="stat-sub" id="statMoltsCount">0 wylinek</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Ostatnia wylinka</div>
+            <div class="stat-value" id="statLastMolt">brak</div>
+            <div class="stat-sub" id="statLastMoltAgo"></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Szacowana kolejna</div>
+            <div class="stat-value" id="statNextMolt">za mało danych</div>
+            <div class="stat-sub" id="statNextMoltSub"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="stat-label" style="margin-bottom:10px;">Karmienie</div>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">Ostatnie karmienie</div>
+            <div class="stat-value" id="statLastFeed">brak</div>
+            <div class="stat-sub" id="statLastFeedAgo"></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Podano</div>
+            <div class="stat-value" id="statLastFeedWhat">–</div>
+            <div class="stat-sub" id="statFeedCount">0 karmień razem</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="btn btn-amber btn-block" id="btnQuickFeed">+ Karmienie</button>
+        <button class="btn btn-primary btn-block" id="btnQuickMolt">+ Wylinka</button>
+      </div>
+    </section>
+
+    <!-- FEEDINGS -->
+    <section class="view" id="view-feedings">
+      <h2 class="section-title">Karmienia</h2>
+      <button class="btn btn-amber btn-block" id="btnAddFeedTop" style="margin-bottom:14px;">+ Dodaj karmienie</button>
+      <div class="entry-list" id="feedList"></div>
+    </section>
+
+    <!-- MOLTS -->
+    <section class="view" id="view-molts">
+      <h2 class="section-title">Wylinki</h2>
+      <button class="btn btn-primary btn-block" id="btnAddMoltTop" style="margin-bottom:14px;">+ Dodaj wylinkę</button>
+      <div class="entry-list" id="moltList"></div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section class="view" id="view-calendar">
+      <h2 class="section-title">Kalendarz</h2>
+      <div class="panel">
+        <div class="cal-header">
+          <button class="cal-nav" id="calPrev" aria-label="Poprzedni miesiąc">‹</button>
+          <div class="cal-month" id="calMonthLabel">–</div>
+          <button class="cal-nav" id="calNext" aria-label="Następny miesiąc">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <span><i style="background:var(--amber)"></i> karmienie</span>
+          <span><i style="background:var(--bark)"></i> wylinka</span>
+        </div>
+      </div>
+      <div class="day-detail" id="dayDetail"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <h2 class="section-title">Ustawienia</h2>
+
+      <div class="panel">
+        <div class="field">
+          <label for="setName">Imię modliszki (opcjonalnie)</label>
+          <input type="text" id="setName" placeholder="np. Mantis">
+        </div>
+
+        <div class="field">
+          <label for="setSpecies">Gatunek</label>
+          <input type="text" id="setSpecies"
+                 placeholder="np. Hierodula venosa"
+                 autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="setHatchDate">Data wyklucia</label>
+          <input type="date" id="setHatchDate">
+        </div>
+
+        <button class="btn btn-primary btn-block" id="btnSaveSettings">Zapisz</button>
+      </div>
+
+      <div class="panel">
+        <div class="stat-label" style="margin-bottom:10px;">Kopia zapasowa danych</div>
+        <p class="hint" style="margin:0 0 12px;">Aplikacja działa lokalnie w przeglądarce (bez serwera) — dane są zapisane tylko na tym urządzeniu. Rób regularnie eksport, zwłaszcza po hostingu na GitHub Pages.</p>
+        <div class="settings-actions">
+          <button class="btn btn-ghost btn-block" id="btnExport">Eksportuj dane (.json)</button>
+          <label class="btn btn-ghost btn-block" for="importFile" style="cursor:pointer;">Importuj dane (.json)</label>
+          <input type="file" id="importFile" accept="application/json" style="display:none;">
+        </div>
+      </div>
+
+      <div class="panel danger-zone">
+        <div class="stat-label" style="margin-bottom:10px; color:var(--danger);">Strefa zagrożenia</div>
+        <button class="btn btn-danger-ghost btn-block" id="btnResetAll">Wyczyść wszystkie dane</button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab active" data-view="overview">
+      <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4-2-7-6-7-11a7 7 0 0 1 14 0c0 5-3 9-7 11Z"/><path d="M12 3v18"/></svg></span>
+      <span>Przegląd</span>
+    </button>
+    <button class="tab" data-view="feedings">
+      <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="7" ry="5"/><path d="M9 8 7 4M15 8l2-4M6 13H3M21 13h-3"/></svg></span>
+      <span>Karmienia</span>
+    </button>
+    <button class="tab" data-view="molts">
+      <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 8-8"/><path d="M4 4v5h5"/></svg></span>
+      <span>Wylinki</span>
+    </button>
+    <button class="tab" data-view="calendar">
+      <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+      <span>Kalendarz</span>
+    </button>
+    <button class="tab" data-view="settings">
+      <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1Z"/></svg></span>
+      <span>Ustawienia</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Modal: Add feeding -->
+<div class="modal-overlay" id="modalFeed">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 class="modal-title">Dodaj karmienie</h3>
+    <div class="field">
+      <label for="feedDate">Data</label>
+      <input type="date" id="feedDate">
+    </div>
+    <div class="field">
+      <label for="feedType">Rodzaj pokarmu</label>
+      <input type="text" id="feedType"
+             placeholder="np. świerszcz, karaczan, mucha"
+             autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="feedQty">Ilość (szt.)</label>
+        <input type="number" id="feedQty" min="0" step="1" placeholder="np. 2">
+      </div>
+    </div>
+    <div class="field">
+      <label for="feedNotes">Notatki (opcjonalnie)</label>
+      <textarea id="feedNotes" placeholder="np. zjadła od razu, reszta odrzucona"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="feedCancel">Anuluj</button>
+      <button class="btn btn-amber btn-block" id="feedSave">Zapisz karmienie</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add molt -->
+<div class="modal-overlay" id="modalMolt">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 class="modal-title">Dodaj wylinkę</h3>
+    <div class="field">
+      <label for="moltDate">Data wylinki</label>
+      <input type="date" id="moltDate">
+    </div>
+    <div class="field">
+      <label for="moltNotes">Notatki (opcjonalnie)</label>
+      <textarea id="moltNotes" placeholder="np. wylinka udana, dłuższe skrzydła"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="moltCancel">Anuluj</button>
+      <button class="btn btn-primary btn-block" id="moltSave">Zapisz wylinkę</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Species list ---------------- */
+  var SPECIES = [
+    "Hierodula membranacea (modliszka olbrzymia)",
+    "Hierodula venosa",
+    "Sphodromantis lineola (modliszka afrykańska)",
+    "Mantis religiosa (modliszka zwyczajna)",
+    "Tenodera sinensis (modliszka chińska)",
+    "Deroplatys desiccata (sucholistna)",
+    "Deroplatys truncata (sucholistna karłowata)",
+    "Phyllocrania paradoxa (upiór)",
+    "Gongylus gongylodes (modliszka wiciokrzew)",
+    "Idolomantis diabolica (modliszka diabelska)",
+    "Hymenopus coronatus (modliszka storczykowa)",
+    "Creobroter gemmatus (kwietnica indyjska)",
+    "Pseudocreobotra wahlbergii (kwietnica afrykańska)",
+    "Stagmomantis carolina",
+    "Miomantis caffra",
+    "Inny (wpisz własny)"
+  ];
+
+  /* ---------------- State / storage ---------------- */
+  var STORE_KEY = "mantisDiary.v1";
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function parseDate(str){
+    var p = str.split("-").map(Number);
+    return new Date(p[0], p[1]-1, p[2]);
+  }
+  function daysBetween(fromStr, toStr){
+    return Math.round((parseDate(toStr) - parseDate(fromStr)) / 86400000);
+  }
+  function fmtDate(str){
+    if(!str) return "–";
+    return parseDate(str).toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'});
+  }
+  function fmtDateShort(str){
+    return parseDate(str).toLocaleDateString('pl-PL', {day:'numeric', month:'short'});
+  }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function defaultState(){
+    return { name:"", species:"", hatchDate:"", molts:[], feedings:[] };
+  }
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return null;
+      var data = JSON.parse(raw);
+      if(!data.molts) data.molts = [];
+      if(!data.feedings) data.feedings = [];
+      return data;
+    }catch(e){ return null; }
+  }
+  function saveState(){
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    }catch(e){
+      alert("Nie udało się zapisać danych w tej przeglądarce (pamięć może być pełna lub niedostępna w trybie prywatnym). Zrób eksport danych, aby ich nie stracić.");
+    }
+  }
+
+  var state = loadState() || defaultState();
+
+  /* ---------------- Tabs ---------------- */
+  var tabs = document.querySelectorAll(".tab");
+  var views = document.querySelectorAll(".view");
+  function showView(name){
+    views.forEach(function(v){ v.classList.toggle("active", v.id === "view-" + name); });
+    tabs.forEach(function(t){ t.classList.toggle("active", t.dataset.view === name); });
+    if(name === "calendar") renderCalendar();
+    window.scrollTo({top:0});
+  }
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){ showView(t.dataset.view); });
+  });
+
+  /* ---------------- Text fields ---------------- */
+  var setSpecies = document.getElementById("setSpecies");
+  var feedType = document.getElementById("feedType");
+
+  /* ---------------- Settings form ---------------- */
+  var setName = document.getElementById("setName");
+  var setHatchDate = document.getElementById("setHatchDate");
+
+  function fillSettingsForm(){
+    setName.value = state.name || "";
+    setHatchDate.value = state.hatchDate || "";
+    setSpecies.value = state.species || "";
+  }
+  fillSettingsForm();
+
+  document.getElementById("btnSaveSettings").addEventListener("click", function(){
+    state.name = setName.value.trim();
+    state.species = setSpecies.value.trim() || "Gatunek nieokreślony";
+    state.hatchDate = setHatchDate.value || "";
+    saveState();
+    renderAll();
+    showView("overview");
+  });
+
+  /* ---------------- Header / overview render ---------------- */
+  function currentInstar(){ return state.molts.length + 1; }
+
+  function computeNextMoltEstimate(){
+    var events = [];
+    if(state.hatchDate) events.push(state.hatchDate);
+    state.molts.slice().sort(function(a,b){ return a.date.localeCompare(b.date); })
+      .forEach(function(m){ events.push(m.date); });
+    if(events.length < 2) return null;
+    var intervals = [];
+    for(var i=1;i<events.length;i++){
+      intervals.push(daysBetween(events[i-1], events[i]));
+    }
+    var avg = intervals.reduce(function(a,b){return a+b;},0) / intervals.length;
+    var last = events[events.length-1];
+    var lastDateObj = parseDate(last);
+    lastDateObj.setDate(lastDateObj.getDate() + Math.round(avg));
+    var estStr = lastDateObj.getFullYear() + "-" + pad(lastDateObj.getMonth()+1) + "-" + pad(lastDateObj.getDate());
+    return { date: estStr, avgDays: Math.round(avg) };
+  }
+
+  function renderOverview(){
+    document.getElementById("petName").textContent = state.name || "Dziennik Modliszki";
+    document.getElementById("petSpecies").textContent = state.species || "Uzupełnij dane w Ustawieniach";
+
+    var today = todayStr();
+    var ageDays = state.hatchDate ? daysBetween(state.hatchDate, today) : null;
+    document.getElementById("ageDaysChip").textContent = ageDays === null ? "–" : ageDays;
+    document.getElementById("statAge").textContent = ageDays === null ? "brak danych" : (ageDays + " dni");
+    document.getElementById("statHatch").textContent = state.hatchDate ? ("wykluta " + fmtDate(state.hatchDate)) : "brak daty wyklucia";
+
+    document.getElementById("statInstar").textContent = "L" + currentInstar();
+    document.getElementById("statMoltsCount").textContent = state.molts.length + " wylinek zapisanych";
+
+    var moltsSorted = state.molts.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(moltsSorted.length){
+      document.getElementById("statLastMolt").textContent = fmtDateShort(moltsSorted[0].date);
+      document.getElementById("statLastMoltAgo").textContent = daysBetween(moltsSorted[0].date, today) + " dni temu";
+    } else {
+      document.getElementById("statLastMolt").textContent = "brak";
+      document.getElementById("statLastMoltAgo").textContent = "";
+    }
+
+    var est = computeNextMoltEstimate();
+    if(est){
+      document.getElementById("statNextMolt").textContent = fmtDateShort(est.date);
+      var diff = daysBetween(today, est.date);
+      document.getElementById("statNextMoltSub").textContent = "śr. odstęp " + est.avgDays + " dni · " + (diff >= 0 ? ("za " + diff + " dni") : ((-diff) + " dni po terminie"));
+    } else {
+      document.getElementById("statNextMolt").textContent = "za mało danych";
+      document.getElementById("statNextMoltSub").textContent = "dodaj pierwszą wylinkę";
+    }
+
+    var feedsSorted = state.feedings.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(feedsSorted.length){
+      document.getElementById("statLastFeed").textContent = fmtDateShort(feedsSorted[0].date);
+      document.getElementById("statLastFeedAgo").textContent = daysBetween(feedsSorted[0].date, today) + " dni temu";
+      document.getElementById("statLastFeedWhat").textContent = feedsSorted[0].food + (feedsSorted[0].qty ? (" ×" + feedsSorted[0].qty) : "");
+    } else {
+      document.getElementById("statLastFeed").textContent = "brak";
+      document.getElementById("statLastFeedAgo").textContent = "";
+      document.getElementById("statLastFeedWhat").textContent = "–";
+    }
+    document.getElementById("statFeedCount").textContent = state.feedings.length + " karmień razem";
+  }
+
+  /* ---------------- Feedings list ---------------- */
+  function iconFeed(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="7" ry="5"/><path d="M9 8 7 4M15 8l2-4"/></svg>';
+  }
+  function iconMolt(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 8-8"/><path d="M4 4v5h5"/></svg>';
+  }
+  function iconEmpty(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4-2-7-6-7-11a7 7 0 0 1 14 0c0 5-3 9-7 11Z"/></svg>';
+  }
+  function iconTrash(){
+    return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z"/></svg>';
+  }
+
+  function renderFeedList(){
+    var list = document.getElementById("feedList");
+    var items = state.feedings.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(!items.length){
+      list.innerHTML = '<div class="empty-state">' + iconEmpty() + '<p>Brak zapisanych karmień.<br>Dodaj pierwsze karmienie powyżej.</p></div>';
+      return;
+    }
+    list.innerHTML = items.map(function(f){
+      return '<div class="entry" data-id="' + f.id + '">' +
+        '<div class="entry-icon">' + iconFeed() + '</div>' +
+        '<div class="entry-body">' +
+          '<div class="entry-title">' + escapeHtml(f.food) + (f.qty ? (' · ' + f.qty + ' szt.') : '') + '</div>' +
+          '<div class="entry-date">' + fmtDate(f.date) + '</div>' +
+          (f.notes ? '<div class="entry-notes">' + escapeHtml(f.notes) + '</div>' : '') +
+        '</div>' +
+        '<button class="entry-del" data-del-feed="' + f.id + '" aria-label="Usuń">' + iconTrash() + '</button>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderMoltList(){
+    var list = document.getElementById("moltList");
+    var itemsAsc = state.molts.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+    if(!itemsAsc.length){
+      list.innerHTML = '<div class="empty-state">' + iconEmpty() + '<p>Brak zapisanych wylinek.<br>Dodaj pierwszą wylinkę powyżej.</p></div>';
+      return;
+    }
+    var itemsDesc = itemsAsc.slice().reverse();
+    list.innerHTML = itemsDesc.map(function(m){
+      var idx = itemsAsc.indexOf(m);
+      return '<div class="entry molt" data-id="' + m.id + '">' +
+        '<div class="entry-icon">' + iconMolt() + '</div>' +
+        '<div class="entry-body">' +
+          '<div class="entry-title">Wylinka do stadium L' + (idx+2) + '</div>' +
+          '<div class="entry-date">' + fmtDate(m.date) + '</div>' +
+          (m.notes ? '<div class="entry-notes">' + escapeHtml(m.notes) + '</div>' : '') +
+        '</div>' +
+        '<button class="entry-del" data-del-molt="' + m.id + '" aria-label="Usuń">' + iconTrash() + '</button>' +
+      '</div>';
+    }).join("");
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  document.getElementById("feedList").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-del-feed]");
+    if(!btn) return;
+    if(confirm("Usunąć ten wpis karmienia?")){
+      state.feedings = state.feedings.filter(function(f){ return f.id !== btn.dataset.delFeed; });
+      saveState(); renderAll();
+    }
+  });
+  document.getElementById("moltList").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-del-molt]");
+    if(!btn) return;
+    if(confirm("Usunąć ten wpis wylinki?")){
+      state.molts = state.molts.filter(function(m){ return m.id !== btn.dataset.delMolt; });
+      saveState(); renderAll();
+    }
+  });
+
+  /* ---------------- Modals: add feeding ---------------- */
+  var modalFeed = document.getElementById("modalFeed");
+  var modalMolt = document.getElementById("modalMolt");
+
+  function openModal(el){ el.classList.add("open"); }
+  function closeModal(el){ el.classList.remove("open"); }
+
+  function openFeedModal(){
+    document.getElementById("feedDate").value = todayStr();
+    document.getElementById("feedType").value = "Świerszcz domowy";
+    document.getElementById("feedQty").value = "";
+    document.getElementById("feedNotes").value = "";
+    openModal(modalFeed);
+  }
+  document.getElementById("btnQuickFeed").addEventListener("click", openFeedModal);
+  document.getElementById("btnAddFeedTop").addEventListener("click", openFeedModal);
+  document.getElementById("feedCancel").addEventListener("click", function(){ closeModal(modalFeed); });
+document.getElementById("feedSave").addEventListener("click", function(){
+    var date = document.getElementById("feedDate").value;
+    if(!date){ alert("Podaj datę karmienia."); return; }
+    var type = document.getElementById("feedType").value.trim() || "Inny pokarm";
+    var qty = document.getElementById("feedQty").value;
+    var notes = document.getElementById("feedNotes").value.trim();
+    state.feedings.push({ id: uid(), date: date, food: type, qty: qty ? Number(qty) : null, notes: notes });
+    saveState();
+    closeModal(modalFeed);
+    renderAll();
+  });
+
+  function openMoltModal(){
+    document.getElementById("moltDate").value = todayStr();
+    document.getElementById("moltNotes").value = "";
+    openModal(modalMolt);
+  }
+  document.getElementById("btnQuickMolt").addEventListener("click", openMoltModal);
+  document.getElementById("btnAddMoltTop").addEventListener("click", openMoltModal);
+  document.getElementById("moltCancel").addEventListener("click", function(){ closeModal(modalMolt); });
+  document.getElementById("moltSave").addEventListener("click", function(){
+    var date = document.getElementById("moltDate").value;
+    if(!date){ alert("Podaj datę wylinki."); return; }
+    var notes = document.getElementById("moltNotes").value.trim();
+    state.molts.push({ id: uid(), date: date, notes: notes });
+    saveState();
+    closeModal(modalMolt);
+    renderAll();
+  });
+
+  [modalFeed, modalMolt].forEach(function(m){
+    m.addEventListener("click", function(e){ if(e.target === m) closeModal(m); });
+  });
+
+  /* ---------------- Calendar ---------------- */
+  var calCursor = new Date();
+  var DOW = ["pon","wt","śr","czw","pt","sob","nd"];
+  var calGrid = document.getElementById("calGrid");
+
+  // Attached once, outside renderCalendar, so navigating months/tabs never
+  // stacks up duplicate listeners on the grid.
+  calGrid.addEventListener("click", function(e){
+    var cell = e.target.closest(".cal-day");
+    if(!cell) return;
+    showDayDetail(cell.dataset.date);
+  });
+
+  function renderCalendar(){
+    var y = calCursor.getFullYear(), m = calCursor.getMonth();
+    document.getElementById("calMonthLabel").textContent =
+      calCursor.toLocaleDateString('pl-PL', {month:'long', year:'numeric'});
+
+    calGrid.innerHTML = "";
+    DOW.forEach(function(d){
+      var el = document.createElement("div");
+      el.className = "cal-dow"; el.textContent = d;
+      calGrid.appendChild(el);
+    });
+
+    var firstOfMonth = new Date(y, m, 1);
+    var startOffset = (firstOfMonth.getDay() + 6) % 7; // Monday-first
+    var startDate = new Date(y, m, 1 - startOffset);
+
+    var feedMap = {}, moltMap = {};
+    state.feedings.forEach(function(f){ feedMap[f.date] = (feedMap[f.date]||0) + 1; });
+    state.molts.forEach(function(mo){ moltMap[mo.date] = true; });
+
+    var todayS = todayStr();
+
+    for(var i=0;i<42;i++){
+      var d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      var dStr = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+      var cell = document.createElement("div");
+      cell.className = "cal-day" + (d.getMonth() !== m ? " outside" : "") + (dStr === todayS ? " today" : "");
+      cell.dataset.date = dStr;
+      cell.innerHTML = d.getDate();
+      var dots = "";
+      if(feedMap[dStr]) dots += '<span class="cal-dot feed"></span>';
+      if(moltMap[dStr]) dots += '<span class="cal-dot molt"></span>';
+      if(dots) cell.innerHTML += '<span class="dots">' + dots + '</span>';
+      calGrid.appendChild(cell);
+    }
+  }
+
+  function showDayDetail(dateStr){
+    var feeds = state.feedings.filter(function(f){ return f.date === dateStr; });
+    var molts = state.molts.filter(function(m){ return m.date === dateStr; });
+    var box = document.getElementById("dayDetail");
+    if(!feeds.length && !molts.length){
+      box.innerHTML = '<div class="panel"><div class="stat-label">' + fmtDate(dateStr) + '</div><p class="muted" style="margin:6px 0 0;font-size:13.5px;">Brak wpisów tego dnia.</p></div>';
+      return;
+    }
+    var html = '<div class="panel"><div class="stat-label" style="margin-bottom:10px;">' + fmtDate(dateStr) + '</div><div class="entry-list">';
+    feeds.forEach(function(f){
+      html += '<div class="entry"><div class="entry-icon">' + iconFeed() + '</div><div class="entry-body">' +
+        '<div class="entry-title">' + escapeHtml(f.food) + (f.qty ? (' · ' + f.qty + ' szt.') : '') + '</div>' +
+        (f.notes ? '<div class="entry-notes">' + escapeHtml(f.notes) + '</div>' : '') + '</div></div>';
+    });
+    molts.forEach(function(m){
+      html += '<div class="entry molt"><div class="entry-icon">' + iconMolt() + '</div><div class="entry-body">' +
+        '<div class="entry-title">Wylinka</div>' +
+        (m.notes ? '<div class="entry-notes">' + escapeHtml(m.notes) + '</div>' : '') + '</div></div>';
+    });
+    html += '</div></div>';
+    box.innerHTML = html;
+  }
+
+  document.getElementById("calPrev").addEventListener("click", function(){
+    calCursor.setMonth(calCursor.getMonth()-1); renderCalendar();
+  });
+  document.getElementById("calNext").addEventListener("click", function(){
+    calCursor.setMonth(calCursor.getMonth()+1); renderCalendar();
+  });
+
+  /* ---------------- Export / Import / Reset ---------------- */
+  document.getElementById("btnExport").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var fname = "dziennik-modliszki-" + (state.name ? state.name.toLowerCase().replace(/\s+/g,'-') : "backup") + "-" + todayStr() + ".json";
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        if(typeof data !== "object" || data === null) throw new Error("bad format");
+        if(!data.molts) data.molts = [];
+        if(!data.feedings) data.feedings = [];
+        state = data;
+        saveState();
+        fillSettingsForm();
+        renderAll();
+        alert("Dane zaimportowane pomyślnie.");
+      }catch(err){
+        alert("Nie udało się wczytać pliku — sprawdź, czy to poprawny eksport z tej aplikacji.");
+      }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("btnResetAll").addEventListener("click", function(){
+    if(confirm("Na pewno usunąć WSZYSTKIE dane (gatunek, daty, karmienia, wylinki)? Tej operacji nie można cofnąć.")){
+      localStorage.removeItem(STORE_KEY);
+      state = defaultState();
+      fillSettingsForm();
+      renderAll();
+      showView("settings");
+    }
+  });
+
+  /* ---------------- Render all ---------------- */
+  function renderAll(){
+    renderOverview();
+    renderFeedList();
+    renderMoltList();
+  }
+
+  renderAll();
+  // First run: if nothing set, guide to settings
+  if(!state.hatchDate && !state.species){
+    showView("settings");
+  }
+
+})();
+</script>
+<noscript><div style="padding:16px;font-family:Arial,sans-serif;background:#f3f6e9;color:#24301d;">Ta aplikacja wymaga włączonego JavaScript w przeglądarce.</div></noscript>
+</body>
+</html>
